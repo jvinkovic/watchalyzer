@@ -44,11 +44,10 @@ namespace WatchAlyzer
                 }
             } while (!validDir);
 
-            int ans = 'y';
-            Console.WriteLine("Watch subfolders? (Y/n)");
-            ans = Console.Read();
+            Console.Write("Watch subfolders? (y/n): ");
+            string ans = Console.ReadLine();
 
-            bool subfolders = ans == 'y';
+            bool subfolders = ans == "y";
 
             Console.Write("Files filters to watch (e.g.: \"*.jpg,*bmp*\"): ");
             ext = Console.ReadLine().Trim();
@@ -119,10 +118,17 @@ namespace WatchAlyzer
             httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
 
             MemoryStream memoryStream = new MemoryStream();
+            Bitmap img = Image.FromFile(path) as Bitmap;
 
-            using (Bitmap img = Image.FromFile(path) as Bitmap)
+            var resize = false;
+
+            if (resize)
             {
-                Rectangle cropRect = new Rectangle(0, img.Height / 3 * 2, img.Width, img.Height / 3);
+                // resize parameters
+                var y = img.Height / 3 * 2;
+                var height = img.Height / 3;
+
+                Rectangle cropRect = new Rectangle(0, y, img.Width, height);
                 using (Bitmap target = new Bitmap(cropRect.Width, cropRect.Height))
                 {
                     using (Graphics g = Graphics.FromImage(target))
@@ -132,12 +138,17 @@ namespace WatchAlyzer
                                          GraphicsUnit.Pixel);
                     }
 
-                    target.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
-                    memoryStream.Position = 0;
+                    target.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);                    
 
                     //target.Save(path.Replace("jpg", "") + "-SMALL.png", System.Drawing.Imaging.ImageFormat.Png);
                 }
+                img.Dispose();
             }
+            else
+            {
+                img.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+            }
+            memoryStream.Position = 0;
 
             string json = string.Empty;
             using (var content = new StreamContent(memoryStream))

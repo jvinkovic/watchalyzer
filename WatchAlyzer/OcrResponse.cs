@@ -8,7 +8,7 @@ namespace WatchAlyzer
         public string Language { get; set; }
         public double TextAngle { get; set; }
         public string Orientation { get; set; }
-        public List<Region> Regions { get; set; }
+        public List<Region> Regions { get; set; } = new List<Region>();
 
         private List<string> _texts = null;
 
@@ -20,11 +20,14 @@ namespace WatchAlyzer
                 {
                     _texts = new List<string>();
 
-                    foreach (var r in Regions)
+                    if (Regions != null)
                     {
-                        foreach (var l in r.Lines)
+                        foreach (var r in Regions)
                         {
-                            _texts.Add(string.Join(' ', l.Words.Select(w => w.Text)));
+                            foreach (var l in r.Lines)
+                            {
+                                _texts.Add(string.Join(' ', l.Words.Select(w => w.Text)));
+                            }
                         }
                     }
                 }
